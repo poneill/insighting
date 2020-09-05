@@ -196,9 +196,19 @@ function writeTable() {
             absElevationCell.innerHTML=absElevation;
             margWindageCell.innerHTML=margWindage;
             margElevationCell.innerHTML=margElevation;
+            var shotX, shotY;
 
-            shotXCell.innerHTML=(record.shot[0] || "-");
-            shotYCell.innerHTML=(record.shot[1] || "-");
+            if (!(record.shot === NULL_SHOT)){
+                shotX = record.shot[0].toFixed(2);
+                shotY = record.shot[1].toFixed(2);
+                console.log("shotX", shotX);
+            }
+            else {
+                [shotX, shotY] = ["-", "-"];
+            }
+            shotXCell.innerHTML=shotX;
+            shotYCell.innerHTML=shotY;
+            console.log("shotX html", shotXCell.innerHTML);
             console.log(table);
 
         }
