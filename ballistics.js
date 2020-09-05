@@ -157,10 +157,10 @@ function writeTable() {
     history.forEach(
         record => {
             var tr = table.insertRow(-1);
-            var absWindageCell = tr.insertCell(0);
-            var absElevationCell = tr.insertCell(1);
-            var margWindageCell = tr.insertCell(2);
-            var margElevationCell = tr.insertCell(3);
+            var margWindageCell = tr.insertCell(0);
+            var margElevationCell = tr.insertCell(1);
+            var absWindageCell = tr.insertCell(2);
+            var absElevationCell = tr.insertCell(3);
             var shotXCell = tr.insertCell(4);
             var shotYCell = tr.insertCell(5);
 
