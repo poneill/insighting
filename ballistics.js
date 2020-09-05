@@ -1,33 +1,34 @@
 "use strict";
-var canvas = document.getElementById('canvas');
+var canvas = document.getElementById("canvas");
 if (canvas.getContext) {
-    var ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext("2d");
 }
 else {
-    alert("Canvas not supported!")
+    alert("Canvas not supported!");
 }
 
-const caliber = 22;
-const NULL_SHOT = [null, null];
+const caliber = 22;  // TODO
 
-function newRecord(guess){
-    console.log("newRecord:", guess);
+function newRecord(shot, guess){
     let adjustment = guess.map(Math.round);
-    return {guess: guess, adjustment: adjustment, shot: NULL_SHOT}
+    return {shot: shot, guess: guess, adjustment: adjustment};
 }
-let history = [newRecord([0, 0])];
+let history = [];
 
-const TARGET_RED = 'rgb(255, 0, 0, 0.1)';
-const BLACK = 'rgb(0, 0, 0, 0.5)';
-const WHITE = 'rgb(255, 255, 255, 0.5)';
+const TARGET_RED = "rgb(255, 0, 0, 0.1)";
+const BLACK = "rgb(0, 0, 0, 0.5)";
+const WHITE = "rgb(255, 255, 255, 0.5)";
 
-canvas.addEventListener('click', function(evt) {
+canvas.addEventListener("click", function(evt) {
     //var mousePos = getMousePos(canvas, evt);
-    //var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+    //var message = "Mouse position: " + mousePos.x + "," + mousePos.y;
     console.log("Clicked at: " + evt.pageX + " " + evt.pageY);
-    history[history.length - 1].shot = inchesFromPixelsCoords([evt.pageX, evt.pageY]);
-    let newGuess = calcAdjustment(history);
-    history.push(newRecord(newGuess))
+    let shot = inchesFromPixelsCoords([evt.pageX, evt.pageY]);
+    let guess = calcAdjustment(history);
+    console.log(shot, guess);
+    history.push(newRecord(shot, guess));
+    console.log("Hi!");
+    console.log("after push:", history.length);
     console.log(history);
     flashScreen();
 }, false);
@@ -48,23 +49,18 @@ function flashScreen() {
             let [xPx, yPx] = pixelsFromInchesCoords(record.guess.map(inchesFromClicks));
             console.log("plotting guess:", xPx, yPx);
             drawCircle(xPx, yPx, caliber / 2, WHITE);
-            if (! (record.shot === NULL_SHOT)){
-                [xPx, yPx] = pixelsFromInchesCoords(record.shot);
-                drawCircle(xPx, yPx, caliber / 2, BLACK, i);
-            }
-            else {
-                console.log("skipped empty shot");
-            }
+            [xPx, yPx] = pixelsFromInchesCoords(record.shot);
+            drawCircle(xPx, yPx, caliber / 2, BLACK, i);
             // TODO shot numbers
         }
-    )
+    );
     writeTable();
 }
 function drawCircle(x, y, r, fillStyle, text=null) {
     ctx.fillStyle = fillStyle;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2 * Math.PI);
-    ctx.fill()
+    ctx.fill();
     if (!(text === null)){
         ctx.fillStyle = WHITE;
         ctx.strokeText(text, x, y);
@@ -72,24 +68,23 @@ function drawCircle(x, y, r, fillStyle, text=null) {
 
 }
 
+// eslint-disable-next-line no-unused-vars
 function undoShot(){
     // Todo: fix bug where you have to undo twice because of null shot
-    console.log("Undoing shot")
-    if (history.length > 1){
+    console.log("Undoing shot");
+    if (history){
         history.pop();
     }
     else {
-        history[0].shot = NULL_SHOT;
+        console.log("Tried to undo empty history.");
     }
     console.log(history);
     flashScreen();
 }
 
 function calcAdjustment(history){
-    console.assert(
-        !(history[history.length - 1].shot === null),
-        "last shot was not taken."
-    );
+    console.assert(history.length, "history shouldn't be empty.");
+    console.log("history length:", history.length);
     let xs = [];
     let ys = [];
     history.forEach(
@@ -120,15 +115,6 @@ function clicksFromInches(inches){
     return inches / INCHES_PER_CLICK;
 }
 
-function inchesFromPixels(px){
-    // TODO clean this up
-    return (px - 500) / 100;
-}
-
-function pixelsFromInches(i){
-    return i * 100 + 500;
-}
-
 function pixelsFromInchesCoords(xyIn){
     let [xIn, yIn] = xyIn;
     let xPx = xIn * 100 + 500;
@@ -149,14 +135,14 @@ function writeTable() {
     var table = document.getElementById("adjustmenttable");
     console.log("table:", table);
     Array.from(table.rows).forEach(
-        (row, i) => {if (i > 0) table.deleteRow(1)}
+        (row, i) => {if (i > 0) table.deleteRow(1);}
     );
     console.log("length after deleting:", table.rows.length);
     console.log("kept header:", table.rows[0].id=="header");
     // write new table
     var lastWindage = 0;
     var lastElevation = 0;
-    console.log("writing history to table:", history)
+    console.log("writing history to table:", history);
     history.forEach(
         record => {
             var tr = table.insertRow(-1);
@@ -184,7 +170,7 @@ function writeTable() {
             console.log(table);
 
         }
-    )
+    );
     console.log("length after adding:", table.rows.length);
 }
 
