@@ -17,6 +17,9 @@ const WHITE = "rgb(255, 255, 255, 0.5)";
 let history = freshHistory();
 console.log("history after top level:", history);
 
+function showDistance(){
+    document.getElementById("distancereadout").innerText = distance;
+}
 // eslint-disable-next-line no-unused-vars
 function readDistance() {
     console.log("calling readDistance");
@@ -24,12 +27,13 @@ function readDistance() {
     console.log("value", v);
     distance = parseInt(v);
     console.log(distance);
-    document.getElementById("distancereadout").innerText = distance;
+    showDistance();
     history = freshHistory();
     flashScreen();
     console.log("history after read distance:", history);
 }
 var distance = 10;
+showDistance();
 
 function INCHES_PER_MOA() {
     return 1 * distance / 100;
