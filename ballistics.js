@@ -7,6 +7,23 @@ else {
     alert("Canvas not supported!");
 }
 
+var distance;
+readDistance();
+// eslint-disable-next-line no-unused-vars
+function readDistance() {
+    console.log("calling readDistance");
+    let v = document.getElementById("distance").value;
+    console.log("value", v);
+    distance = parseInt(v);
+    console.log(distance);
+    document.getElementById("distancereadout").innerText = distance;
+}
+
+
+const CLICKS_PER_MOA = 4;
+let INCHES_PER_MOA = 1 * distance / 100;
+let INCHES_PER_CLICK = INCHES_PER_MOA / CLICKS_PER_MOA;
+
 const caliber = 22;  // TODO
 
 const NULL_SHOT = [null, null];
@@ -22,11 +39,19 @@ const TARGET_RED = "rgb(255, 0, 0, 0.1)";
 const BLACK = "rgb(0, 0, 0, 0.5)";
 const WHITE = "rgb(255, 255, 255, 0.5)";
 
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
 canvas.addEventListener("click", function(evt) {
     //var mousePos = getMousePos(canvas, evt);
     //var message = "Mouse position: " + mousePos.x + "," + mousePos.y;
-    console.log("Clicked at: " + evt.pageX + " " + evt.pageY);
-    let shot = inchesFromPixelsCoords([evt.pageX, evt.pageY]);
+    var pos = getMousePos(canvas, evt);
+    console.log("Clicked at: " + pos.x + " " + pos.y);
+    let shot = inchesFromPixelsCoords([pos.x, pos.y]);
     history[history.length - 1].shot = shot;
     let currentGuess = calcAdjustment(history);
     history.push(newRecord(currentGuess, NULL_SHOT));
@@ -113,10 +138,6 @@ function calcAdjustment(history){
 }
 
 
-let distance = 50; // TODO make this a form
-const CLICKS_PER_MOA = 4;
-let INCHES_PER_MOA = 1 * distance / 100;
-let INCHES_PER_CLICK = INCHES_PER_MOA / CLICKS_PER_MOA;
 
 function inchesFromClicks(clicks){
     return clicks * INCHES_PER_CLICK;
