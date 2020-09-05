@@ -146,7 +146,7 @@ function inchesFromPixelsCoords(xyPx){
 
 function writeTable() {
     // delete old table
-    var table = document.getElementById("table");
+    var table = document.getElementById("adjustmenttable");
     console.log("table:", table);
     Array.from(table.rows).forEach(
         (row, i) => {if (i > 0) table.deleteRow(1)}
