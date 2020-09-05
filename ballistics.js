@@ -169,14 +169,12 @@ function writeTable() {
     Array.from(table.rows).forEach(
         (row, i) => {if (i > 0) table.deleteRow(1);}
     );
-    console.log("length after deleting:", table.rows.length);
-    console.log("kept header:", table.rows[0].id=="header");
     // write new table
     var lastWindage = 0;
     var lastElevation = 0;
-    console.log("writing history to table:", history);
     history.forEach(
         record => {
+            // add row to table, get refs
             var tr = table.insertRow(-1);
             var margWindageCell = tr.insertCell(0);
             var margElevationCell = tr.insertCell(1);
@@ -185,35 +183,32 @@ function writeTable() {
             var shotXCell = tr.insertCell(4);
             var shotYCell = tr.insertCell(5);
 
+            // do marginal adj calculations
             let absWindage = record.adjustment[0];
             let absElevation = record.adjustment[1];
             let margWindage = absWindage - lastWindage;
             let margElevation = absElevation - lastElevation;
-            lastWindage = absWindage;
-            lastElevation = absElevation;
-
-            absWindageCell.innerHTML=absWindage;
-            absElevationCell.innerHTML=absElevation;
-            margWindageCell.innerHTML=margWindage;
-            margElevationCell.innerHTML=margElevation;
             var shotX, shotY;
-
             if (!(record.shot === NULL_SHOT)){
                 shotX = record.shot[0].toFixed(2);
                 shotY = record.shot[1].toFixed(2);
-                console.log("shotX", shotX);
             }
             else {
                 [shotX, shotY] = ["-", "-"];
             }
+            lastWindage = absWindage;
+            lastElevation = absElevation;
+
+
+            // update refs
+            absWindageCell.innerHTML=absWindage;
+            absElevationCell.innerHTML=absElevation;
+            margWindageCell.innerHTML=margWindage;
+            margElevationCell.innerHTML=margElevation;
             shotXCell.innerHTML=shotX;
             shotYCell.innerHTML=shotY;
-            console.log("shotX html", shotXCell.innerHTML);
-            console.log(table);
-
         }
     );
-    console.log("length after adding:", table.rows.length);
 }
 
 flashScreen();
