@@ -1,4 +1,5 @@
 "use strict";
+console.log("starting");
 var canvas = document.getElementById("canvas");
 if (canvas.getContext) {
     var ctx = canvas.getContext("2d");
@@ -6,9 +7,16 @@ if (canvas.getContext) {
 else {
     alert("Canvas not supported!");
 }
+const CLICKS_PER_MOA = 4;
+const NULL_SHOT = [null, null];
+const caliber = 22;  // TODO
+const TARGET_RED = "rgb(255, 0, 0, 0.1)";
+const BLACK = "rgb(0, 0, 0, 0.5)";
+const WHITE = "rgb(255, 255, 255, 0.5)";
 
-var distance;
-readDistance();
+let history = freshHistory();
+console.log("history after top level:", history);
+
 // eslint-disable-next-line no-unused-vars
 function readDistance() {
     console.log("calling readDistance");
@@ -17,27 +25,41 @@ function readDistance() {
     distance = parseInt(v);
     console.log(distance);
     document.getElementById("distancereadout").innerText = distance;
+    history = freshHistory();
+    flashScreen();
+    console.log("history after read distance:", history);
+}
+var distance = 10;
+
+function INCHES_PER_MOA() {
+    return 1 * distance / 100;
 }
 
+function INCHES_PER_CLICK () {
+    return INCHES_PER_MOA() / CLICKS_PER_MOA;
+}
 
-const CLICKS_PER_MOA = 4;
-let INCHES_PER_MOA = 1 * distance / 100;
-let INCHES_PER_CLICK = INCHES_PER_MOA / CLICKS_PER_MOA;
+//readDistance();
 
-const caliber = 22;  // TODO
 
-const NULL_SHOT = [null, null];
+
+
+
+
+
+console.log(NULL_SHOT);
 
 // adjustment is made, THEN shot taken
 function newRecord(guess, shot){
     let adjustment = guess.map(Math.round);
     return {guess: guess, adjustment: adjustment, shot: shot};
 }
-let history = [newRecord([0, 0], NULL_SHOT)];
 
-const TARGET_RED = "rgb(255, 0, 0, 0.1)";
-const BLACK = "rgb(0, 0, 0, 0.5)";
-const WHITE = "rgb(255, 255, 255, 0.5)";
+function freshHistory() {
+    return [newRecord([0, 0], NULL_SHOT)];
+}
+
+
 
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
@@ -49,12 +71,17 @@ function getMousePos(canvas, evt) {
 canvas.addEventListener("click", function(evt) {
     //var mousePos = getMousePos(canvas, evt);
     //var message = "Mouse position: " + mousePos.x + "," + mousePos.y;
+    console.log("history at beginning of click:", history);
     var pos = getMousePos(canvas, evt);
     console.log("Clicked at: " + pos.x + " " + pos.y);
     let shot = inchesFromPixelsCoords([pos.x, pos.y]);
+    console.log("shot:", shot);
     history[history.length - 1].shot = shot;
+    console.log("history after updating shot:", history);
     let currentGuess = calcAdjustment(history);
+    console.log("currentGuess:", currentGuess);
     history.push(newRecord(currentGuess, NULL_SHOT));
+    console.log("history at end of click:", history);
     flashScreen();
 }, false);
 
@@ -72,7 +99,10 @@ function flashScreen() {
     drawTarget();
     history.forEach(
         (record, i) => {
-            let [xPx, yPx] = pixelsFromInchesCoords(record.guess.map(inchesFromClicks));
+            console.log("processing record:", record);
+            let guessInches = record.guess.map(inchesFromClicks);
+            console.log("guessInches", guessInches);
+            let [xPx, yPx] = pixelsFromInchesCoords(guessInches);
             console.log("plotting guess:", xPx, yPx);
             drawCircle(xPx, yPx, caliber / 2, WHITE);
             if (record.shot != NULL_SHOT){
@@ -112,6 +142,7 @@ function undoShot(){
 }
 
 function calcAdjustment(history){
+    console.log("calculating adjustment with:", history);
     if (history.length == 0) {
         return [0, 0];
     }
@@ -140,11 +171,12 @@ function calcAdjustment(history){
 
 
 function inchesFromClicks(clicks){
-    return clicks * INCHES_PER_CLICK;
+    console.log("clicks", clicks);
+    return clicks * INCHES_PER_CLICK();
 }
 
 function clicksFromInches(inches){
-    return inches / INCHES_PER_CLICK;
+    return inches / INCHES_PER_CLICK();
 }
 
 function pixelsFromInchesCoords(xyIn){
@@ -162,13 +194,19 @@ function inchesFromPixelsCoords(xyPx){
 
 }
 
-function writeTable() {
-    // delete old table
+function clearTable() {
+    // delete data rows of adjustment table
     var table = document.getElementById("adjustmenttable");
     console.log("table:", table);
     Array.from(table.rows).forEach(
+        // don't delete the header
         (row, i) => {if (i > 0) table.deleteRow(1);}
     );
+
+}
+function writeTable() {
+    clearTable();
+    var table = document.getElementById("adjustmenttable");
     // write new table
     var lastWindage = 0;
     var lastElevation = 0;
