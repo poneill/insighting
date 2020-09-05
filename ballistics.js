@@ -9,11 +9,14 @@ else {
 
 const caliber = 22;  // TODO
 
-function newRecord(shot, guess){
+const NULL_SHOT = [null, null];
+
+// adjustment is made, THEN shot taken
+function newRecord(guess, shot){
     let adjustment = guess.map(Math.round);
-    return {shot: shot, guess: guess, adjustment: adjustment};
+    return {guess: guess, adjustment: adjustment, shot: shot};
 }
-let history = [];
+let history = [newRecord([0, 0], NULL_SHOT)];
 
 const TARGET_RED = "rgb(255, 0, 0, 0.1)";
 const BLACK = "rgb(0, 0, 0, 0.5)";
@@ -24,12 +27,9 @@ canvas.addEventListener("click", function(evt) {
     //var message = "Mouse position: " + mousePos.x + "," + mousePos.y;
     console.log("Clicked at: " + evt.pageX + " " + evt.pageY);
     let shot = inchesFromPixelsCoords([evt.pageX, evt.pageY]);
-    let guess = calcAdjustment(history);
-    console.log(shot, guess);
-    history.push(newRecord(shot, guess));
-    console.log("Hi!");
-    console.log("after push:", history.length);
-    console.log(history);
+    history[history.length - 1].shot = shot;
+    let currentGuess = calcAdjustment(history);
+    history.push(newRecord(currentGuess, NULL_SHOT));
     flashScreen();
 }, false);
 
@@ -42,6 +42,7 @@ function drawTarget() {
 }
 
 function flashScreen() {
+    console.log(history);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawTarget();
     history.forEach(
@@ -49,8 +50,10 @@ function flashScreen() {
             let [xPx, yPx] = pixelsFromInchesCoords(record.guess.map(inchesFromClicks));
             console.log("plotting guess:", xPx, yPx);
             drawCircle(xPx, yPx, caliber / 2, WHITE);
-            [xPx, yPx] = pixelsFromInchesCoords(record.shot);
-            drawCircle(xPx, yPx, caliber / 2, BLACK, i);
+            if (record.shot != NULL_SHOT){
+                [xPx, yPx] = pixelsFromInchesCoords(record.shot);
+                drawCircle(xPx, yPx, caliber / 2, BLACK, i);
+            }
             // TODO shot numbers
         }
     );
@@ -72,8 +75,9 @@ function drawCircle(x, y, r, fillStyle, text=null) {
 function undoShot(){
     // Todo: fix bug where you have to undo twice because of null shot
     console.log("Undoing shot");
-    if (history){
+    if (history.length > 1){
         history.pop();
+        history[history.length - 1].shot = NULL_SHOT;
     }
     else {
         console.log("Tried to undo empty history.");
@@ -83,22 +87,29 @@ function undoShot(){
 }
 
 function calcAdjustment(history){
-    console.assert(history.length, "history shouldn't be empty.");
-    console.log("history length:", history.length);
-    let xs = [];
-    let ys = [];
-    history.forEach(
-        record => {
-            let [adjX, adjY] = record.adjustment;
-            let [sX, sY] = record.shot;
-            xs.push(clicksFromInches(sX - inchesFromClicks(adjX)));
-            ys.push(clicksFromInches(sY - inchesFromClicks(adjY)));
-        });
-    let mean_x = xs.reduce((a, b) => a + b) / xs.length;
-    let mean_y = ys.reduce((a, b) => a + b) / ys.length;
-    let adjustment = [-mean_x, -mean_y];
-    console.log("calculated adjustment:", adjustment);
-    return adjustment;
+    if (history.length == 0) {
+        return [0, 0];
+    }
+    else {
+        let xs = [];
+        let ys = [];
+        history.forEach(
+            record => {
+                if (record.shot === NULL_SHOT) {
+                    console.log("skipping null shot");
+                }
+                else{
+                    let [adjX, adjY] = record.adjustment;
+                    let [sX, sY] = record.shot;
+                    xs.push(clicksFromInches(sX - inchesFromClicks(adjX)));
+                    ys.push(clicksFromInches(sY - inchesFromClicks(adjY)));}
+            });
+        let mean_x = xs.reduce((a, b) => a + b) / xs.length;
+        let mean_y = ys.reduce((a, b) => a + b) / ys.length;
+        let adjustment = [-mean_x, -mean_y];
+        console.log("calculated adjustment:", adjustment);
+        return adjustment;
+    }
 }
 
 
