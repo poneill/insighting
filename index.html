@@ -13,6 +13,20 @@
   </style>
 </head>
 <body>
+  <h1>Ballistics Calculator</h1>
+<p> Enter distance to target in yards below.  Take a shot and record
+its point of impact on target.  The calculator will offer windage and
+elevation adjustments in the first two columns of the table below,
+denominated in clicks of a 1/4 MOA adjustment knob.  (Positive
+elevation adjustments mean "adjust point of aim upwards"; positive
+windage adjustments mean "adjust point of aim to right".)  Your
+rifle can be considered sighted in when you receive two consecutive
+zero adjustment values, or simply when you are satisfied with
+its performance.</p>
+  <label for="distance">Enter distance (yds):</label>
+    <input type="text" id="distance" value="10">
+    <button onclick="readDistance()">Enter</button>
+    <p>Distance: <div id="distancereadout"></div></p>
   <canvas id="canvas" width="1000" height="1000">
     Canvas cannot be displayed!
   </canvas><button onclick="undoShot()">Undo</button>
@@ -23,8 +37,8 @@
       <tr id="header">
         <td>Windage Adjustment</td>
         <td>Elevation Adjustment</td>
-        <td>Cum. Windage</td>
-        <td>Cum. Elevation</td>
+        <td>Cumulative Windage</td>
+        <td>Cumulative Elevation</td>
         <td>Shot Displacement (x)</td>
         <td>Shot Displacement (y)</td>
       </tr>
