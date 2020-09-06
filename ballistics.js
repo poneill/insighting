@@ -90,11 +90,25 @@ canvas.addEventListener("click", function(evt) {
 }, false);
 
 function drawTarget() {
+    // draw circles
     [1, 2, 3, 4, 5].forEach(
         r => {
             drawCircle(500, 500, 100 * r, TARGET_RED);
         }
     );
+    // draw grid
+    for (var j = 1; j < canvas.height; j += 100){
+        ctx.moveTo(0, j);
+        ctx.lineTo(canvas.width, j);
+        ctx.stroke();
+    }
+
+    for (var i = 1;  i < canvas.width; i+=100){
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.strokeStyle = "gray";
+        ctx.stroke();
+    }
 }
 
 function flashScreen() {
@@ -124,6 +138,7 @@ function drawCircle(x, y, r, fillStyle, text=null) {
     ctx.arc(x, y, r, 0, 2 * Math.PI);
     ctx.fill();
     if (!(text === null)){
+        ctx.strokeStyle = WHITE;
         ctx.fillStyle = WHITE;
         ctx.strokeText(text, x, y);
     }
