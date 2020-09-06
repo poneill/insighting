@@ -93,10 +93,15 @@ function drawTarget() {
     // draw circles
     [1, 2, 3, 4, 5].forEach(
         r => {
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
             drawCircle(500, 500, 100 * r, TARGET_RED);
         }
     );
     // draw grid
+    ctx.strokeStyle = "gray";
+    ctx.lineWidth = 1;
+    // TODO decide on proper linewidth
     for (var j = 1; j < canvas.height; j += 100){
         ctx.moveTo(0, j);
         ctx.lineTo(canvas.width, j);
@@ -106,7 +111,6 @@ function drawTarget() {
     for (var i = 1;  i < canvas.width; i+=100){
         ctx.moveTo(i, 0);
         ctx.lineTo(i, canvas.height);
-        ctx.strokeStyle = "gray";
         ctx.stroke();
     }
 }
@@ -136,11 +140,13 @@ function drawCircle(x, y, r, fillStyle, text=null) {
     ctx.fillStyle = fillStyle;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.stroke();
     ctx.fill();
     if (!(text === null)){
         ctx.strokeStyle = WHITE;
         ctx.fillStyle = WHITE;
-        ctx.strokeText(text, x, y);
+        // TODO fix this when parametrizing caliber
+        ctx.strokeText(text, x - 3, y + 4);
     }
 
 }
