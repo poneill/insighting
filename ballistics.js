@@ -264,14 +264,27 @@ function writeTable() {
 
 
             // update refs
-            absWindageCell.innerHTML=absWindage;
-            absElevationCell.innerHTML=absElevation;
-            margWindageCell.innerHTML=margWindage;
-            margElevationCell.innerHTML=margElevation;
+            absWindageCell.innerHTML=toWindage(absWindage);
+            absElevationCell.innerHTML=toElevation(absElevation);
+            margWindageCell.innerHTML=toWindage(margWindage);
+            margElevationCell.innerHTML=toElevation(margElevation);
             shotXCell.innerHTML=shotX;
             shotYCell.innerHTML=shotY;
         }
     );
 }
 
+function toElevation(x) {
+    // convert elevation value to direction
+    if (x > 0) {return x + " UP";}
+    else if (x < 0) {return (-x) + " DOWN";}
+    else {return x + "";}
+}
+
+function toWindage(x) {
+    // convert elevation value to direction
+    if (x > 0) {return x + " RIGHT";}
+    else if (x < 0) {return (-x) + " LEFT";}
+    else {return x + "";}
+}
 flashScreen();
