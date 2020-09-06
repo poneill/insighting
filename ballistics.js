@@ -35,12 +35,12 @@ function readDistance() {
 var distance = 10;
 showDistance();
 
-function INCHES_PER_MOA() {
+function inches_per_moa() {
     return 1 * distance / 100;
 }
 
-function INCHES_PER_CLICK () {
-    return INCHES_PER_MOA() / CLICKS_PER_MOA;
+function inches_per_click () {
+    return inches_per_moa() / CLICKS_PER_MOA;
 }
 
 //readDistance();
@@ -197,11 +197,11 @@ function calcAdjustment(history){
 
 function inchesFromClicks(clicks){
     console.log("clicks", clicks);
-    return clicks * INCHES_PER_CLICK();
+    return clicks * inches_per_click();
 }
 
 function clicksFromInches(inches){
-    return inches / INCHES_PER_CLICK();
+    return inches / inches_per_click();
 }
 
 function pixelsFromInchesCoords(xyIn){
